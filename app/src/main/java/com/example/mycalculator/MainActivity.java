@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatDelegate;
 import android.widget.Switch;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -130,29 +129,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void calculate() {
-        secondValue = Double.parseDouble(textView.getText().toString());
-        DecimalFormat formatter = new DecimalFormat("#,###.##"); // Format with commas
-        switch (operator) {
-            case "+":
-                result = firstValue + secondValue;
-                break;
-            case "-":
-                result = firstValue - secondValue;
-                break;
-            case "*":
-                result = firstValue * secondValue;
-                break;
-            case "/":
-                if (secondValue == 0) {
-                    textView.setText("Error");
-                    return;
-                } else {
-                    result = firstValue / secondValue;
-                }
-                break;
+        if (operator == null) {
+            return; // Do nothing if no operator has been set
         }
-        textView.setText(formatter.format(result)); // Format the result with commas
+
+        try {
+            if (!textView.getText().toString().isEmpty()) {
+                secondValue = Double.parseDouble(textView.getText().toString());
+            }
+
+            DecimalFormat formatter = new DecimalFormat("#,###.##"); // Format with commas
+            switch (operator) {
+                case "+":
+                    result = firstValue + secondValue;
+                    break;
+                case "-":
+                    result = firstValue - secondValue;
+                    break;
+                case "*":
+                    result = firstValue * secondValue;
+                    break;
+                case "/":
+                    if (secondValue == 0) {
+                        textView.setText("Error");
+                        return;
+                    } else {
+                        result = firstValue / secondValue;
+                    }
+                    break;
+            }
+            textView.setText(formatter.format(result)); // Format the result with commas
+            firstValue = result; // Update firstValue for chained calculations
+        } catch (Exception e) {
+            textView.setText("Error");
+        }
     }
+
 
     private void clear() {
         textView.setText("0");
