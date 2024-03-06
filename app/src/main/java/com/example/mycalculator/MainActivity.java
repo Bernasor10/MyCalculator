@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void calculate() {
         secondValue = Double.parseDouble(textView.getText().toString());
-        DecimalFormat formatter = new DecimalFormat("#,###.##"); // Format with commas
+        DecimalFormat formatter = new DecimalFormat("#,###.##"); // Format with commas to make it readable
         switch (operator) {
             case "+":
                 result = firstValue + secondValue;
