@@ -122,9 +122,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setOperator(String op) {
-        firstValue = Double.parseDouble(textView.getText().toString());
-        operator = op;
-        textView.setText("");
+        if (!textView.getText().toString().isEmpty()) {
+            firstValue = Double.parseDouble(textView.getText().toString());
+            operator = op;
+            textView.setText("");
+        }
     }
 
     private void calculate() {
