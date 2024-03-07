@@ -8,7 +8,6 @@ import android.widget.Switch;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
@@ -113,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void appendNumber(String number) {
-        if (textView.getText().toString().equals("Cannot divide by 0")) {
+        if (textView.getText().toString().equals("Cannot divide by 0") || textView.getText().toString().equals("Error")) {
             clear(); // Clear the error message
         }
         if (number.equals(".") && textView.getText().toString().contains(".")) {
@@ -128,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setOperator(String op) {
-        if (textView.getText().toString().equals("Cannot divide by 0")) {
+        if (textView.getText().toString().equals("Cannot divide by 0") || textView.getText().toString().equals("Error")) {
             clear(); // Clear the error message
         }
         if (!textView.getText().toString().isEmpty()) {
@@ -191,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteLastCharacter() {
-        if (textView.getText().toString().equals("Cannot divide by 0")) {
+        if (textView.getText().toString().equals("Cannot divide by 0") || textView.getText().toString().equals("Error")) {
             clear(); // Clear the error message
             return;
         }
