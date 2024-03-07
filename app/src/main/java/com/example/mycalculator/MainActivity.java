@@ -1,17 +1,20 @@
 package com.example.mycalculator;
 
-import java.text.DecimalFormat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Switch;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
-    private Double firstValue, secondValue, result;
+    private BigDecimal firstValue, secondValue, result, lastSecondValue;
     private String operator;
+    private boolean lastCalculation;
     private Switch themeSwitch;
     private ConstraintLayout constraintLayout;
 
@@ -91,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         Button buttonDelete = findViewById(R.id.buttonDelete);
         buttonDelete.setOnClickListener(v -> deleteLastCharacter());
 
-// Theme switch
+        // Theme switch
         themeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 // Toggle is enabled, switch to light mode
@@ -110,22 +113,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void appendNumber(String number) {
+        if (textView.getText().toString().equals("Cannot divide by 0")) {
+            clear(); // Clear the error message
+        }
         if (number.equals(".") && textView.getText().toString().contains(".")) {
             return; // Avoid adding multiple decimal points
         }
-        if (textView.getText().toString().equals("0") && !number.equals(".")) {
-            textView.setText(number); // Replace "0" with the number
+        if ((textView.getText().toString().equals("0") || lastCalculation) && !number.equals(".")) {
+            textView.setText(number); // Replace "0" or clear if last operation was calculation
         } else {
             textView.append(number);
         }
+        lastCalculation = false; // Reset the flag
     }
 
     private void setOperator(String op) {
+        if (textView.getText().toString().equals("Cannot divide by 0")) {
+            clear(); // Clear the error message
+        }
         if (!textView.getText().toString().isEmpty()) {
-            firstValue = Double.parseDouble(textView.getText().toString());
+            firstValue = new BigDecimal(textView.getText().toString());
             operator = op;
             textView.setText("");
         }
+        lastCalculation = false; // Reset the flag
     }
 
     private void calculate() {
@@ -134,47 +145,56 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
-            if (!textView.getText().toString().isEmpty()) {
-                secondValue = Double.parseDouble(textView.getText().toString());
+            if (lastCalculation) {
+                // Use the last secondValue for repeated calculations
+                firstValue = result;
+            } else if (!textView.getText().toString().isEmpty()) {
+                secondValue = new BigDecimal(textView.getText().toString());
+                lastSecondValue = secondValue; // Store the secondValue for repeated calculations
             }
 
-            DecimalFormat formatter = new DecimalFormat("#,###.##"); // Format with commas
             switch (operator) {
                 case "+":
-                    result = firstValue + secondValue;
+                    result = firstValue.add(lastSecondValue);
                     break;
                 case "-":
-                    result = firstValue - secondValue;
+                    result = firstValue.subtract(lastSecondValue);
                     break;
                 case "*":
-                    result = firstValue * secondValue;
+                    result = firstValue.multiply(lastSecondValue);
                     break;
                 case "/":
-                    if (secondValue == 0) {
-                        textView.setText("Error");
+                    if (lastSecondValue.compareTo(BigDecimal.ZERO) == 0) {
+                        textView.setText("Cannot divide by 0");
                         return;
                     } else {
-                        result = firstValue / secondValue;
+                        result = firstValue.divide(lastSecondValue, 10, RoundingMode.HALF_UP);
                     }
                     break;
             }
-            textView.setText(formatter.format(result)); // Format the result with commas
+            textView.setText(result.stripTrailingZeros().toPlainString());
             firstValue = result; // Update firstValue for chained calculations
+            lastCalculation = true; // Set the flag to indicate the last operation was a calculation
         } catch (Exception e) {
             textView.setText("Error");
         }
     }
 
-
     private void clear() {
         textView.setText("0");
         firstValue = null;
         secondValue = null;
+        lastSecondValue = null;
         operator = null;
         result = null;
+        lastCalculation = false; // Reset the flag
     }
 
     private void deleteLastCharacter() {
+        if (textView.getText().toString().equals("Cannot divide by 0")) {
+            clear(); // Clear the error message
+            return;
+        }
         String currentText = textView.getText().toString();
         if (!currentText.isEmpty() && !currentText.equals("0")) {
             textView.setText(currentText.substring(0, currentText.length() - 1));
